@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import AllProducts from '../AllProducts.js/AllProducts';
+import SearchItem from '../SearchItem/SearchItem';
 
 const Home = () => {
 
     const [products, setProducts] = useState([])
     const [pageNumber, setPageNumber] = useState(0);
+    const [query, setQuery] = useState("");
 
     useEffect(() => {
         fetch('products.json')
@@ -17,11 +19,10 @@ const Home = () => {
             })
     }, [])
 
+    //for pagination
     const productsPerPage = 9;
     const pagesVisited = pageNumber * productsPerPage;
-
     const displayProducts = products.slice(pagesVisited, pagesVisited + productsPerPage)
-
     const pageCount = Math.ceil(products.length / productsPerPage);
 
     const changePage = ({ selected }) => {
@@ -29,15 +30,29 @@ const Home = () => {
         window.scrollTo(0, 0)
     };
 
+    const search = (data) => {
+        return data.filter((item) => item.name.toLowerCase().includes(query));
+    };
+
     return (
-        <Container className='py-5 '>
+        <Container className='py-5'>
+            <div className='d-flex justify-content-center'>
+                <input
+                    className="search shadow mb-5 bg-body "
+                    placeholder="Search by products name..."
+                    onChange={(e) => setQuery(e.target.value.toLowerCase())}
+                />
+            </div>
 
             <div className=" row row-cols-1 row-cols-md-2 row-cols-lg-3 ">
                 {
-                    displayProducts.map(product => <AllProducts
-                        key={product.id}
-                        product={product}>
-                    </AllProducts>)
+                    query ?
+                        <SearchItem data={search(products)} />
+                        :
+                        displayProducts.map(product => <AllProducts
+                            key={product.id}
+                            product={product}>
+                        </AllProducts>)
                 }
             </div>
 
